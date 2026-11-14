@@ -1,0 +1,15 @@
+[
+  {
+    "uid": "AA:BB:CC:DD",
+    "name": "Örnek Anahtar Kartı",
+    "cardType": "MIFARE 1KB",
+    "enabled": true,
+    "actionType": "lock_toggle",
+    "actionParam": "",
+    "cooldownSec": 2.0,
+    "scanCount": 1,
+    "lastScannedAt": "2026-01-01 12:00:00",
+    "lastScannedTs": 0.0,
+    "createdAt": "2026-01-01 12:00:00"
+  }
+]

@@ -1,0 +1,16 @@
+# Kullanıcıya özel kayıtlı RFID kart veritabanı (Kişisel UID ve şifre/parametre verileri içerir)
+cards.json
+
+# Python & Sistem dosyaları
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env
+*.log
+
+# Arduino derleme çıktıları
+build/
+*.hex
+*.elf

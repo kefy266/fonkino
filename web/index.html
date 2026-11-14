@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RFID Kart Kayıt & Fonksiyon Otomasyon Paneli</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel: #131b2e;
+      --panel-hover: #18233c;
+      --border: #233253;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.22);
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, 0.14);
+      --amber: #f59e0b;
+      --amber-bg: rgba(245, 158, 11, 0.14);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.14);
+      --purple: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .header {
+      background: rgba(19, 27, 46, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+    }
+
+    .brand h1 {
+      font-size: 1.28rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand p {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: #0f172a;
+    }
+
+    .badge .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .badge.ok {
+      border-color: rgba(34, 197, 94, 0.4);
+      background: var(--green-bg);
+      color: #86efac;
+    }
+    .badge.ok .dot {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .badge.warn {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: var(--amber-bg);
+      color: #fcd34d;
+    }
+    .badge.warn .dot {
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+    }
+
+    .badge.err {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: var(--red-bg);
+      color: #fca5a5;
+    }
+    .badge.err .dot {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+    }
+
+    .btn {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: #1e293b;
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.16s ease;
+    }
+
+    .btn:hover {
+      background: #334155;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+    }
+
+    .btn-success {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: rgba(34, 197, 94, 0.5);
+      color: #86efac;
+    }
+    .btn-success:hover {
+      background: rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.28);
+    }
+
+    .btn-purple {
+      background: rgba(168, 85, 247, 0.18);
+      border-color: rgba(168, 85, 247, 0.45);
+      color: #d8b4fe;
+    }
+    .btn-purple:hover {
+      background: rgba(168, 85, 247, 0.3);
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 980px) {
+      .top-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-panel {
+      background: rgba(19, 27, 46, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card-panel.flash {
+      border-color: var(--accent);
+      box-shadow: 0 0 32px var(--accent-glow);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+
+    .panel-title h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scanner-box {
+      background: #0b1120;
+      border: 1px dashed #334155;
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+    }
+
+    .scanner-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .uid-display {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .scan-meta {
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .switch-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #0f172a;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .switch-wrap input {
+      accent-color: var(--green);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      background: #0b1120;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.14s;
+    }
+
+    .chip:hover {
+      background: #334155;
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .rfid-card-row {
+      background: #0d1424;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.18s, background 0.18s;
+    }
+
+    .rfid-card-row:hover {
+      border-color: #3b5284;
+      background: #10192d;
+    }
+
+    .rfid-card-top {
+      display: grid;
+      grid-template-columns: 220px 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+
+    @media (max-width: 980px) {
+      .rfid-card-top {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-ident {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-uid-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 3px 10px;
+      border-radius: 8px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .card-stats {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .card-config {
+      display: grid;
+      grid-template-columns: 180px 250px 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    @media (max-width: 1120px) {
+      .card-config {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .row-quick-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(51, 65, 85, 0.55);
+    }
+
+    .logs-box {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      max-height: 270px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .log-item {
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      gap: 10px;
+    }
+
+    .log-time {
+      color: #64748b;
+      flex-shrink: 0;
+    }
+
+    .log-item.success .log-text { color: #86efac; }
+    .log-item.warn .log-text { color: #fcd34d; }
+    .log-item.error .log-text { color: #fca5a5; }
+    .log-item.info .log-text { color: #cbd5e1; }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e293b;
+      border: 1px solid var(--accent);
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ÜST BAR -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon">💳</div>
+        <div>
+          <h1>RFID Kart Kayıt & Fonksiyon Otomasyon Merkezi</h1>
+          <p>Kartı okut, otomatik kaydet ve istediğin bilgisayar fonksiyonunu ata</p>
+        </div>
+      </div>
+
+      <div class="status-bar">
+        <div id="serialBadge" class="badge warn">
+          <span class="dot"></span>
+          <span id="serialText">Port Kontrol Ediliyor...</span>
+        </div>
+
+        <div id="rfidBadge" class="badge warn">
+          <span class="dot"></span>
+          <span id="rfidText">RC522: Bekleniyor</span>
+        </div>
+
+        <label class="switch-wrap" title="Açık olduğunda okutulan her yeni RFID kart otomatik olarak listeye kaydedilir">
+          <input type="checkbox" id="autoRegisterToggle" checked onchange="toggleAutoRegister(this.checked)" />
+          <span>Okununca Otomatik Kaydet</span>
+        </label>
+
+        <button class="btn" onclick="resetRfidChip()" title="RC522 modülünü yeniden başlatır">
+          🔄 RC522 Yenile
+        </button>
+
+        <button id="serialPauseBtn" class="btn" onclick="toggleSerialPause()" title="Terminalde arduino-cli monitor açmak istersen portu buradan geçici serbest bırakabilirsin">
+          🔌 Portu Boşa Bırak
+        </button>
+      </div>
+    </header>
+
+    <!-- ÜST PANEL: CANLI OKUYUCU + YENİ KART / FONKSİYON DÜZENLEME -->
+    <div class="top-grid">
+      <!-- SOL: CANLI KART OKUMA EKRANI -->
+      <section id="livePanel" class="card-panel">
+        <div class="panel-title">
+          <h2>📡 Canlı RFID Okuyucu</h2>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-purple" onclick="simulateScan()">
+              ⚡ Simülasyon: Kart Okut
+            </button>
+          </div>
+        </div>
+
+        <div class="scanner-box">
+          <div class="scanner-main">
+            <div>
+              <div style="font-size:0.76rem; color:var(--muted); text-transform:uppercase; font-weight:700;">
+                SON OKUNAN KART UID
+              </div>
+              <div id="lastUidText" class="uid-display">KART BEKLENİYOR...</div>
+            </div>
+          </div>
+
+          <div class="scan-meta">
+            <span>🏷️ Tip: <strong id="lastTypeText">-</strong></span>
+            <span>🕒 Saat: <strong id="lastTimeText">-</strong></span>
+            <span>📌 Durum: <strong id="lastRegStatus">Henüz kart okutulmadı</strong></span>
+          </div>
+
+          <div id="inspectBox" style="margin-top:8px; padding:12px; background:#070b14; border:1px solid #1e293b; border-radius:10px; font-family:'JetBrains Mono', monospace; font-size:0.78rem; display:flex; flex-direction:column; gap:5px;">
+            <div style="color:#38bdf8; font-weight:700;">🔍 DERİN ÇİP & KART İÇİ VERİ ANALİZİ</div>
+            <div id="inspectContent" style="color:var(--muted);">Kartınızı yaklaştırdığınızda çip mimarisi, SAK, Blok 0/4 ve EMV/ATS yanıtları burada görünür.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px; font-size:0.83rem; color:var(--muted);">
+          💡 <strong>Nasıl Çalışır?</strong> Kartını veya anahtarlığını RFID okuyucuya yaklaştır.
+          Aşağıdaki listeden fonksiyon seçtiğin anda <strong>otomatik kaydedilir</strong> ve kartı her okuttuğunda o fonksiyon çalışır!
+        </div>
+      </section>
+
+      <!-- SAĞ: HIZLI KART KAYDET & FONKSİYON ATA -->
+      <section class="card-panel">
+        <div class="panel-title">
+          <h2>⚙️ Kart Kaydet / Fonksiyon Ata</h2>
+          <button class="btn" onclick="fillLastScannedToForm()" style="font-size:0.78rem; padding:5px 10px;">
+            ↙ Son Okunanı Doldur
+          </button>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Kart UID</label>
+            <input type="text" id="formUid" placeholder="Örn: A1:B2:C3:D4" />
+          </div>
+
+          <div class="form-group">
+            <label>Kart / Anahtarlık Adı</label>
+            <input type="text" id="formName" placeholder="Örn: Anahtar Kartım" />
+          </div>
+
+          <div class="form-group full">
+            <label>Atanacak Fonksiyon (Kart Okununca Ne Yapsın?)</label>
+            <select id="formActionType" onchange="onFormActionTypeChange()"></select>
+          </div>
+
+          <div class="form-group full">
+            <label>Fonksiyon Parametresi (Şifre / URL / Komut / Mesaj)</label>
+            <input type="text" id="formActionParam" placeholder="Parametre girin..." />
+            <div class="quick-chips">
+              <span class="chip" onclick="applyQuickPreset('lock_toggle', '', 'Anahtar Kartı')">🔐 Akıllı Kilit (Kilitle / Aç)</span>
+              <span class="chip" onclick="applyQuickPreset('unlock_screen', '', 'Kilit Açma Kartı')">🔓 Kilitliyken Aç</span>
+              <span class="chip" onclick="applyQuickPreset('type_password', '', 'Şifre Kartı')">⌨️ Şifre Yaz + Enter</span>
+              <span class="chip" onclick="applyQuickPreset('open_url', 'https://www.youtube.com', 'YouTube Kartı')">▶️ YouTube Aç</span>
+              <span class="chip" onclick="applyQuickPreset('play_sound', '', 'Müzik Kartı')">🎵 Müzik Çal/Durdur</span>
+              <span class="chip" onclick="applyQuickPreset('volume_mute', 'toggle', 'Sessiz Kartı')">🔇 Sesi Kapat/Aç</span>
+              <span class="chip" onclick="applyQuickPreset('notify', 'Kart okundu! Sistem hazır.', 'Karşılama Kartı')">🔔 Bildirim Gönder</span>
+            </div>
+          </div>
+
+          <div class="form-group full" style="display:flex; flex-direction:row; justify-content:flex-end; gap:10px; margin-top:4px;">
+            <button class="btn btn-success" onclick="testFormAction()">
+              ▶ Fonksiyonu Dene
+            </button>
+            <button class="btn btn-primary" onclick="saveFormCard()">
+              💾 Kartı & Fonksiyonu Kaydet
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ORTA PANEL: KAYITLI KARTLAR VE FONKSİYON YÖNETİMİ -->
+    <section class="card-panel">
+      <div class="panel-title">
+        <h2>🗂️ Kayıtlı RFID Kartlar & Atanmış Fonksiyonlar (<span id="cardCountBadge">0</span>)</h2>
+        <span style="font-size:0.82rem; color:var(--muted);">
+          Listeden fonksiyon seçtiğinde veya hızlı butonlara tıkladığında <strong>anında otomatik kaydedilir</strong>.
+        </span>
+      </div>
+
+      <div id="cardsContainer" class="cards-list">
+        <div class="empty-state">Henüz kayıtlı kart yok. Bir RFID kart yaklaştırın veya yukarıdan simülasyon/manuel ekleme yapın.</div>
+      </div>
+    </section>
+
+    <!-- ALT PANEL: CANLI GÜNLÜK (LOGS) -->
+    <section class="card-panel">
+      <div class="panel-title">
+        <h2>📜 Canlı Okuma & Fonksiyon Günlüğü</h2>
+      </div>
+      <div id="logsContainer" class="logs-box"></div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    let appState = {
+      presets: [],
+      cards: [],
+      lastScan: null,
+      serialPaused: false
+    };
+    let lastSeenScanTs = 0;
+    let renderedCardSignature = '';
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.16);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.16);
+      } catch (e) {}
+    }
+
+    function populatePresetSelect(selectEl, selectedValue) {
+      selectEl.innerHTML = '';
+      for (const p of appState.presets) {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.label;
+        if (p.id === selectedValue) opt.selected = true;
+        selectEl.appendChild(opt);
+      }
+    }
+
+    function onFormActionTypeChange() {
+      const type = document.getElementById('formActionType').value;
+      const preset = appState.presets.find(p => p.id === type);
+      const paramInput = document.getElementById('formActionParam');
+      if (preset) {
+        paramInput.placeholder = preset.placeholder || '';
+        paramInput.value = preset.defaultParam || '';
+      }
+    }
+
+    function applyQuickPreset(actionType, actionParam, defaultName) {
+      document.getElementById('formActionType').value = actionType;
+      const preset = appState.presets.find(p => p.id === actionType);
+      document.getElementById('formActionParam').value = actionParam || (preset ? preset.defaultParam : '');
+      const nameInput = document.getElementById('formName');
+      if (!nameInput.value && defaultName) {
+        nameInput.value = defaultName;
+      }
+      if (!document.getElementById('formUid').value && appState.lastScan) {
+        document.getElementById('formUid').value = appState.lastScan.uid;
+      }
+    }
+
+    function fillLastScannedToForm() {
+      if (!appState.lastScan) {
+        showToast('Henüz okunan bir kart yok!');
+        return;
+      }
+      document.getElementById('formUid').value = appState.lastScan.uid;
+      if (appState.lastScan.card) {
+        document.getElementById('formName').value = appState.lastScan.card.name || '';
+        if (appState.lastScan.card.actionType && appState.lastScan.card.actionType !== 'none') {
+          document.getElementById('formActionType').value = appState.lastScan.card.actionType;
+          document.getElementById('formActionParam').value = appState.lastScan.card.actionParam || '';
+        }
+      } else {
+        document.getElementById('formName').value = `Kart ${appState.lastScan.uid.slice(-5)}`;
+      }
+      showToast('Son okunan kart forma dolduruldu');
+    }
+
+    async function saveFormCard() {
+      let uid = document.getElementById('formUid').value.trim().toUpperCase();
+      if (!uid && appState.lastScan) {
+        uid = appState.lastScan.uid;
+        document.getElementById('formUid').value = uid;
+      }
+      const name = document.getElementById('formName').value.trim();
+      const actionType = document.getElementById('formActionType').value;
+      const actionParam = document.getElementById('formActionParam').value.trim();
+
+      if (!uid) {
+        showToast('Lütfen bir Kart UID girin veya önce kartınızı okutun!');
+        return;
+      }
+
+      const res = await fetch('/api/cards/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, name, actionType, actionParam, enabled: true })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast(`✅ '${data.card.name}' fonksiyonu kaydedildi!`);
+        await fetchState(true);
+      } else {
+        showToast('❌ Hata: ' + (data.error || 'Kaydedilemedi'));
+      }
+    }
+
+    async function testFormAction() {
+      const uid = document.getElementById('formUid').value.trim().toUpperCase() || 'FORM-TEST';
+      const name = document.getElementById('formName').value.trim() || 'Form Testi';
+      const actionType = document.getElementById('formActionType').value;
+      const actionParam = document.getElementById('formActionParam').value.trim();
+
+      const res = await fetch('/api/cards/test-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, name, actionType, actionParam })
+      });
+      const data = await res.json();
+      showToast(data.message || 'Test tamamlandı');
+      await fetchState(false);
+    }
+
+    async function saveRowCard(uid) {
+      const nameEl = document.getElementById(`name_${uid}`);
+      const typeEl = document.getElementById(`type_${uid}`);
+      const paramEl = document.getElementById(`param_${uid}`);
+      const enEl = document.getElementById(`en_${uid}`);
+
+      const payload = {
+        uid,
+        name: nameEl ? nameEl.value.trim() : uid,
+        actionType: typeEl ? typeEl.value : 'none',
+        actionParam: paramEl ? paramEl.value.trim() : '',
+        enabled: enEl ? enEl.checked : true
+      };
+
+      const res = await fetch('/api/cards/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast(`💾 '${data.card.name}' fonksiyonu kaydedildi!`);
+        await fetchState(true);
+      }
+    }
+
+    async function onRowTypeChange(uid) {
+      const typeEl = document.getElementById(`type_${uid}`);
+      const paramEl = document.getElementById(`param_${uid}`);
+      if (!typeEl || !paramEl) return;
+      const preset = appState.presets.find(p => p.id === typeEl.value);
+      if (preset) {
+        paramEl.placeholder = preset.placeholder || '';
+        paramEl.value = preset.defaultParam || '';
+      }
+      await saveRowCard(uid);
+    }
+
+    async function assignRowQuickPreset(uid, actionType, actionParam) {
+      const typeEl = document.getElementById(`type_${uid}`);
+      const paramEl = document.getElementById(`param_${uid}`);
+      const preset = appState.presets.find(p => p.id === actionType);
+      if (typeEl) typeEl.value = actionType;
+      if (paramEl) {
+        paramEl.value = actionParam !== undefined && actionParam !== ''
+          ? actionParam
+          : (preset ? (preset.defaultParam || '') : '');
+      }
+      await saveRowCard(uid);
+    }
+
+    async function testRowCard(uid) {
+      const nameEl = document.getElementById(`name_${uid}`);
+      const typeEl = document.getElementById(`type_${uid}`);
+      const paramEl = document.getElementById(`param_${uid}`);
+
+      const res = await fetch('/api/cards/test-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid,
+          name: nameEl ? nameEl.value.trim() : uid,
+          actionType: typeEl ? typeEl.value : 'none',
+          actionParam: paramEl ? paramEl.value.trim() : ''
+        })
+      });
+      const data = await res.json();
+      showToast(data.message || 'Fonksiyon çalıştırıldı');
+      await fetchState(false);
+    }
+
+    async function deleteCard(uid) {
+      const res = await fetch('/api/cards/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast(`🗑️ ${uid} silindi`);
+        await fetchState(true);
+      }
+    }
+
+    async function simulateScan() {
+      const res = await fetch('/api/simulate-scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast(`⚡ Simülasyon Kartı Okutuldu: ${data.uid}`);
+        await fetchState(true);
+      }
+    }
+
+    async function toggleAutoRegister(checked) {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autoRegister: checked })
+      });
+      showToast(checked ? '✨ Otomatik Kayıt: AÇIK' : '⚙️ Otomatik Kayıt: KAPALI');
+    }
+
+    async function resetRfidChip() {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rfidReset: true })
+      });
+      showToast('🔄 RC522 yeniden başlatma komutu gönderildi');
+      await fetchState(false);
+    }
+
+    async function toggleSerialPause() {
+      const nextPaused = !appState.serialPaused;
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serialPaused: nextPaused })
+      });
+      await fetchState(false);
+    }
+
+    function renderCards(cards) {
+      document.getElementById('cardCountBadge').textContent = cards.length;
+      const container = document.getElementById('cardsContainer');
+
+      if (!cards.length) {
+        renderedCardSignature = '';
+        container.innerHTML = `<div class="empty-state">Henüz kayıtlı kart yok. Bir RFID kart yaklaştırın veya yukarıdaki <strong>⚡ Simülasyon: Kart Okut</strong> butonuna basın.</div>`;
+        return;
+      }
+
+      renderedCardSignature = cards.map(c => `${c.uid}|${c.name}|${c.actionType}|${c.actionParam}|${c.enabled}`).join(';;');
+
+      container.innerHTML = cards.map(c => {
+        const optionsHtml = appState.presets.map(p =>
+          `<option value="${p.id}" ${p.id === c.actionType ? 'selected' : ''}>${p.label}</option>`
+        ).join('');
+        const preset = appState.presets.find(p => p.id === c.actionType) || {};
+        const placeholder = (preset.placeholder || 'Parametre (URL / Komut / Mesaj)').replace(/"/g, '&quot;');
+        const safeName = (c.name || '').replace(/"/g, '&quot;');
+        const safeParam = (c.actionParam || '').replace(/"/g, '&quot;');
+
+        return `
+          <div class="rfid-card-row">
+            <div class="rfid-card-top">
+              <div class="card-ident">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="card-uid-pill">${c.uid}</span>
+                  <label style="display:inline-flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer; text-transform:none;">
+                    <input type="checkbox" id="en_${c.uid}" ${c.enabled ? 'checked' : ''} onchange="saveRowCard('${c.uid}')" />
+                    Aktif
+                  </label>
+                </div>
+                <div class="card-stats" id="stats_${c.uid}">
+                  Okunma: <strong>${c.scanCount || 0} kez</strong> • Son: <strong>${c.lastScannedAt || '-'}</strong>
+                </div>
+              </div>
+
+              <div class="card-config">
+                <div class="form-group">
+                  <label>Kart Adı</label>
+                  <input type="text" id="name_${c.uid}" value="${safeName}" onkeydown="if(event.key==='Enter') saveRowCard('${c.uid}')" />
+                </div>
+
+                <div class="form-group">
+                  <label>Atanan Fonksiyon (Seçince Kaydeder)</label>
+                  <select id="type_${c.uid}" onchange="onRowTypeChange('${c.uid}')">
+                    ${optionsHtml}
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Parametre (Şifre / URL / Komut / Ses Yolu)</label>
+                  <input type="text" id="param_${c.uid}" value="${safeParam}" placeholder="${placeholder}" onkeydown="if(event.key==='Enter') saveRowCard('${c.uid}')" />
+                </div>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn btn-primary" onclick="saveRowCard('${c.uid}')" title="Değişiklikleri Kaydet">
+                  💾 Kaydet
+                </button>
+                <button class="btn btn-success" onclick="testRowCard('${c.uid}')" title="Bu kartın fonksiyonunu hemen çalıştır">
+                  ▶ Test Et
+                </button>
+                <button class="btn" onclick="simulateExistingCard('${c.uid}')" title="Bu kart okuyucuya okutulmuş gibi tetikle">
+                  📡 Okut
+                </button>
+                <button class="btn btn-danger" onclick="deleteCard('${c.uid}')" title="Kartı Sil">
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <div class="row-quick-bar">
+              <span style="font-size:0.75rem; color:var(--muted); margin-right:4px;">⚡ Tek Tıkla Ata:</span>
+              <span class="chip" onclick="assignRowQuickPreset('${c.uid}', 'lock_toggle', '')">🔐 Akıllı Kilit (Kilitle/Aç)</span>
+              <span class="chip" onclick="assignRowQuickPreset('${c.uid}', 'unlock_screen', '')">🔓 Kilitliyken Aç</span>
+              <span class="chip" onclick="assignRowQuickPreset('${c.uid}', 'type_password', '')">⌨️ Şifre Yaz + Enter</span>
+              <span class="chip" onclick="assignRowQuickPreset('${c.uid}', 'open_url', 'https://www.youtube.com')">▶️ YouTube Aç</span>
+              <span class="chip" onclick="assignRowQuickPreset('${c.uid}', 'play_sound', '')">🎵 Müzik Çal/Durdur</span>
+              <span class="chip" onclick="assignRowQuickPreset('${c.uid}', 'volume_mute', 'toggle')">🔇 Sesi Kapat/Aç</span>
+              <span class="chip" onclick="assignRowQuickPreset('${c.uid}', 'notify', 'Kart okundu! Sistem hazır.')">🔔 Bildirim Gönder</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateCardStatsInPlace(cards) {
+      document.getElementById('cardCountBadge').textContent = cards.length;
+      for (const c of cards) {
+        const statsEl = document.getElementById(`stats_${c.uid}`);
+        if (statsEl) {
+          statsEl.innerHTML = `Okunma: <strong>${c.scanCount || 0} kez</strong> • Son: <strong>${c.lastScannedAt || '-'}</strong>`;
+        }
+      }
+    }
+
+    async function simulateExistingCard(uid) {
+      await fetch('/api/simulate-scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid })
+      });
+      await fetchState(false);
+    }
+
+    function renderLogs(logs) {
+      const box = document.getElementById('logsContainer');
+      if (!logs || !logs.length) {
+        box.innerHTML = `<div style="color:var(--muted);">Henüz olay kaydı yok...</div>`;
+        return;
+      }
+      box.innerHTML = logs.map(l => `
+        <div class="log-item ${l.level || 'info'}">
+          <span class="log-time">[${l.time}]</span>
+          <span class="log-text">${l.text}</span>
+        </div>
+      `).join('');
+    }
+
+    async function fetchState(forceRenderCards = false) {
+      try {
+        const res = await fetch('/api/state');
+        const state = await res.json();
+
+        if (!appState.presets.length && state.presets && state.presets.length) {
+          appState.presets = state.presets;
+          populatePresetSelect(document.getElementById('formActionType'), 'lock_toggle');
+          onFormActionTypeChange();
+        }
+
+        appState.serialPaused = state.serialPaused;
+        document.getElementById('autoRegisterToggle').checked = !!state.autoRegister;
+
+        const serialBadge = document.getElementById('serialBadge');
+        const serialText = document.getElementById('serialText');
+        const pauseBtn = document.getElementById('serialPauseBtn');
+
+        if (state.serialPaused) {
+          serialBadge.className = 'badge warn';
+          serialText.textContent = `Port Serbest (${state.port})`;
+          pauseBtn.textContent = '🔌 Porta Bağlan';
+        } else if (state.serialConnected) {
+          serialBadge.className = 'badge ok';
+          serialText.textContent = `Arduino Bağlı (${state.port})`;
+          pauseBtn.textContent = '🔌 Portu Boşa Bırak';
+        } else {
+          serialBadge.className = 'badge err';
+          serialText.textContent = `Arduino Yok (${state.port})`;
+          pauseBtn.textContent = '🔌 Portu Boşa Bırak';
+        }
+
+        const rfidBadge = document.getElementById('rfidBadge');
+        const rfidText = document.getElementById('rfidText');
+        if (state.rfidOk) {
+          rfidBadge.className = 'badge ok';
+          rfidText.textContent = `RC522 Hazır (Ver: ${state.version})`;
+        } else {
+          rfidBadge.className = 'badge warn';
+          rfidText.textContent = `RC522 Temassızlık (${state.version})`;
+        }
+
+        if (state.lastScan) {
+          appState.lastScan = state.lastScan;
+          document.getElementById('lastUidText').textContent = state.lastScan.uid;
+          document.getElementById('lastTypeText').textContent = state.lastScan.cardType || 'MIFARE';
+          document.getElementById('lastTimeText').textContent = state.lastScan.time || '-';
+
+          if (state.lastScan.registered) {
+            const c = state.lastScan.card;
+            document.getElementById('lastRegStatus').innerHTML =
+              `<span style="color:#86efac;">Kayıtlı (${c ? c.name : ''})</span>`;
+          } else {
+            document.getElementById('lastRegStatus').innerHTML =
+              `<span style="color:#fcd34d;">Kayıtsız — Kaydetmek için sağdaki formu kullanın</span>`;
+          }
+
+          if (state.lastScan.timestamp > lastSeenScanTs) {
+            const isFirstLoad = (lastSeenScanTs === 0);
+            lastSeenScanTs = state.lastScan.timestamp;
+            const formUidEl = document.getElementById('formUid');
+            if (!formUidEl.value || isFirstLoad || state.lastScan.isNew) {
+              formUidEl.value = state.lastScan.uid;
+              if (state.lastScan.card && state.lastScan.card.name) {
+                document.getElementById('formName').value = state.lastScan.card.name;
+              }
+            }
+            if (!isFirstLoad) {
+              playBeep();
+              const lp = document.getElementById('livePanel');
+              lp.classList.add('flash');
+              setTimeout(() => lp.classList.remove('flash'), 900);
+            }
+          }
+        }
+
+        if (state.lastInspect) {
+          const ins = state.lastInspect;
+          let html = `<div>• <strong>UID & Boyut:</strong> <span style="color:#38bdf8">${ins.uid}</span> (${ins.uidSize || 4} Byte) | <strong>SAK:</strong> <span style="color:#fcd34d">${ins.sak}</span></div>`;
+          html += `<div>• <strong>Çip Mimarisi:</strong> <span style="color:#e2e8f0">${ins.chipArch || '-'}</span></div>`;
+          if (ins.emvLabel || ins.emvAid) {
+            html += `<div>• <strong>EMV Kart Uygulaması:</strong> <span style="color:#86efac">${ins.emvLabel || 'EMV Banka/Kredi Kartı'}</span> ${ins.emvAid ? '(AID: ' + ins.emvAid + ')' : ''}</div>`;
+          }
+          if (ins.atsHex) {
+            html += `<div>• <strong>ATS (ISO 14443-4 Yanıtı):</strong> <span style="color:#c084fc">${ins.atsHex}</span></div>`;
+          }
+          if (ins.emvHex) {
+            html += `<div>• <strong>EMV PPSE HEX:</strong> <span style="color:#94a3b8">${ins.emvHex}</span></div>`;
+            if (ins.emvAscii) {
+              html += `<div>• <strong>EMV ASCII Metin:</strong> <span style="color:#86efac">"${ins.emvAscii}"</span></div>`;
+            }
+          }
+          if (ins.block0) {
+            html += `<div>• <strong>Sektör 0 / Blok 0 (Üretici):</strong> <span style="color:#c084fc">${ins.block0}</span></div>`;
+          }
+          if (ins.block4Hex) {
+            html += `<div>• <strong>Sektör 1 / Blok 4 (Veri):</strong> <span style="color:#94a3b8">${ins.block4Hex}</span> ${ins.block4Ascii ? '("' + ins.block4Ascii + '")' : ''}</div>`;
+          }
+          document.getElementById('inspectContent').innerHTML = html;
+        }
+
+        appState.cards = state.cards || [];
+        const newSig = appState.cards.map(c => `${c.uid}|${c.name}|${c.actionType}|${c.actionParam}|${c.enabled}`).join(';;');
+
+        if (forceRenderCards || newSig !== renderedCardSignature) {
+          renderCards(appState.cards);
+        } else {
+          updateCardStatsInPlace(appState.cards);
+        }
+
+        renderLogs(state.logs || []);
+      } catch (e) {}
+    }
+
+    fetchState(true);
+    setInterval(() => fetchState(false), 800);
+  </script>
+</body>
+</html>
