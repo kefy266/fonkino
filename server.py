@@ -80,6 +80,18 @@ ACTION_PRESETS = [
         "defaultParam": "nautilus"
     },
     {
+        "id": "print_file",
+        "label": "🖨️ Yazıcıdan Dosya / PDF / Resim Yazdır",
+        "placeholder": "Yazdırılacak dosyanın tam yolu (Örn: /home/kullanici/belge.pdf)",
+        "defaultParam": ""
+    },
+    {
+        "id": "print_text",
+        "label": "📄 Yazıcıdan Metin / Kart Giriş Fişi Yazdır",
+        "placeholder": "Kağıda basılacak metin (Boş bırakılırsa kart bilgi fişi yazdırır)",
+        "defaultParam": "FONKINO RFID KONTROL SISTEMI - ONAYLANDI"
+    },
+    {
         "id": "webhook",
         "label": "🔗 HTTP Webhook / API İsteği Gönder",
         "placeholder": "Örn: https://ntfy.sh/fonkino-rfid",
@@ -343,6 +355,48 @@ class ActionExecutor:
                     stderr=subprocess.DEVNULL
                 )
                 return True, f"🚀 Uygulama başlatıldı: {param}"
+
+            elif action_type == "print_file":
+                if not param:
+                    return False, "Yazdırılacak dosya yolu boş!"
+                expanded = os.path.expanduser(param)
+                if not os.path.isfile(expanded):
+                    return False, f"Yazdırılacak dosya bulunamadı: {expanded}"
+                res = subprocess.run(
+                    ["lp", expanded],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if res.returncode == 0:
+                    job_info = res.stdout.strip() or os.path.basename(expanded)
+                    return True, f"🖨️ Yazıcıya dosya gönderildi: {job_info}"
+                return False, f"Yazıcı hatası: {res.stderr.strip() or 'lp komutu başarısız'}"
+
+            elif action_type == "print_text":
+                now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+                body = (
+                    "========================================\n"
+                    "       FONKINO RFID KART BILDIRIMI      \n"
+                    "========================================\n"
+                    f"Kart Adi : {name}\n"
+                    f"Kart UID : {uid}\n"
+                    f"Tarih    : {now_str}\n"
+                    "----------------------------------------\n"
+                    f"Mesaj    : {param or 'Kart okuma islemi basarili.'}\n"
+                    "========================================\n"
+                )
+                res = subprocess.run(
+                    ["lp", "-t", f"Fonkino-{uid}"],
+                    input=body,
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if res.returncode == 0:
+                    job_info = res.stdout.strip() or "Metin fişi"
+                    return True, f"📄 Yazıcıya metin/fiş gönderildi ({job_info})"
+                return False, f"Yazıcı hatası: {res.stderr.strip() or 'lp komutu başarısız'}"
 
             elif action_type == "webhook":
                 url = param if param else "https://httpbin.org/post"
